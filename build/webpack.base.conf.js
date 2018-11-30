@@ -73,7 +73,7 @@ module.exports = {
       // },
       {
         test: /\.less$/,
-        loader: "vue-style-loader!css-loader!less-loader"
+        loader: "style-loader!css-loader!less-loader"
       },
     ]
   },

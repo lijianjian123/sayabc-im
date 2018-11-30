@@ -7,7 +7,7 @@
     <div class='chat'>
       <!-- <chat-header/> -->
       <!-- 要显示聊天界面要有sessionId  通过store传递 -->
-      <!-- <chat /> -->
+      <chat />
     </div>
     <div class='team-members'>
       <!-- 显示群成员信息 -->
