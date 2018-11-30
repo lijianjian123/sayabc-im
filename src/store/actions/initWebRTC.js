@@ -2,7 +2,7 @@
  * SDK连接相关
  */
 
-import config from '@/config'
+import config from '@/configs'
 // import pageUtil from '@/utils/page'
 import util from '@/utils'
 import store from '../'

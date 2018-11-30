@@ -4,7 +4,7 @@
 import store from '../'
 import cookie from '../../utils/cookie'
 import util from '../../utils'
-import config from '../../config'
+import config from '@/configs'
 import Vue from 'Vue'
 
 export default {

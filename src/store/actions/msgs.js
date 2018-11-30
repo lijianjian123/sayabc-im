@@ -1,5 +1,5 @@
 import store from '../'
-import config from '../../config'
+import config from '@/configs'
 import util from '../../utils'
 
 export function formatMsg (msg) {
