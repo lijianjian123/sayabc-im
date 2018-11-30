@@ -7,7 +7,7 @@
     <div class='chat'>
       <!-- <chat-header/> -->
       <!-- 要显示聊天界面要有sessionId  通过store传递 -->
-      <chat v-if="sessionId" />
+      <!-- <chat /> -->
     </div>
     <div class='team-members'>
       <!-- 显示群成员信息 -->
@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import SessionList from "./sessionList/SessionList";
-import Chat from "./Chat";
+import SessionList from "./sessionList/Index.vue";
+import Chat from "./chat/Index.vue";
 import TeamMembers from "./TeamMembers";
 
 export default {

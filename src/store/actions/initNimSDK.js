@@ -3,7 +3,6 @@
  */
 
 import config from '@/config.js'
-console.log(config,'config is :')
 // import pageUtil from '@/utils/page'
 import util from '@/utils'
 import store from '../'
