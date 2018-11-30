@@ -1,23 +1,38 @@
 <template>
-  <div class='chat'>
+  <div class='chat-item'>
     <div class='header'>
-      <span>{{sessionName}}</span>
-      <div>
-        <span>跟进</span>
-        <button>关闭查看</button>
+      <div class='session-name'>{{sessionName}}</div>
+      <div class='session-handle'>
+        <button class='follow-up-btn'>跟进</button>
+        <span class='check-member'>关闭查看</span>
       </div>
     </div>
     <div
       class='chat-box'
       v-if='sessionId'
     >
-      会话
+      <div class='chat-list' id='chat-list'>
+        <chat-list :msglist='msglist' :myInfo='myInfo' :isRobot='isRobot' :userInfos='userInfos'/>
+      </div>
+      <div class='chat-edit'>
+        <chat-editor
+        :scene="scene"
+        :to="to"
+        :invalid="teamInvalid || muteInTeam"
+        :invalidHint="sendInvalidHint" />
+      </div>
     </div>
   </div>
 </template>
 <script>
 import util from "@/utils";
+import ChatList from "./ChatList";
+import ChatEditor from './ChatEditor'
 export default {
+  components: {
+    ChatList,
+    ChatEditor
+  },
   computed: {
     sessionId() {
       return this.$store.state.currSessionId;
@@ -48,6 +63,9 @@ export default {
     scene() {
       return util.parseSession(this.sessionId).scene;
     },
+    to () {
+      return util.parseSession(this.sessionId).to
+    },
     teamInfo() {
       if (this.scene === "team") {
         var teamId = this.sessionId.replace("team-", "");
@@ -56,17 +74,107 @@ export default {
         });
       }
       return undefined;
-    }
+    },
+    msglist() {
+      let msgs = this.$store.state.currSessionMsgs;
+      return msgs;
+    },
+    isRobot () {
+      let sessionId = this.sessionId
+      let user = null
+      if (/^p2p-/.test(sessionId)) {
+        user = sessionId.replace(/^p2p-/, '')
+        if (this.robotInfos[user]) {
+          return true
+        }
+      }
+      return false
+    },
+    teamInvalid() {
+      if (this.scene==='team') {
+        return !(this.teamInfo && this.teamInfo.validToCurrentUser)
+      }
+      return false
+    },
+    muteInTeam(){
+      if(this.scene!=='team') return false
+      var teamMembers = this.$store.state.teamMembers
+      var Members = teamMembers && teamMembers[this.teamInfo.teamId]
+      var selfInTeam = Members && Members.find(item=>{
+        return item.account === this.$store.state.userUID
+      })
+      return selfInTeam && selfInTeam.mute || false
+    },
+    sendInvalidHint() {
+      if (this.scene==='team' && this.teamInvalid) {
+        return `您已不在该${this.teamInfo && this.teamInfo.type==='normal'? '讨论组':'群'}，不能发送消息`
+      } else if (this.muteInTeam) {
+        return '您已被禁言'
+      }
+      return '无权限发送消息'
+    },
+    myInfo () {
+      return this.$store.state.myInfo
+    },
   }
 };
 </script>
 <style lang='less' scoped>
-//   .chat {
-//       .header{
-//           height:40px;
-//           border-bottom: 1px solid #ccc;
-//       }
-//   }
+.chat-item {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  .header {
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid #ccc;
+    box-sizing: border-box;
+    overflow: hidden;
+    .session-name {
+      float: left;
+      height: 40px;
+      line-height: 40px;
+      padding-left: 10px;
+    }
+    .session-handle {
+      float: right;
+      line-height: 40px;
+      padding-right: 10px;
+      .follow-up-btn {
+        width: 60px;
+        height: 30px;
+        background: #fff;
+        border-radius: 5px;
+        outline: none;
+        margin-left: 10px;
+      }
+    }
+  }
+  .chat-box {
+    position: absolute;
+    top:40px;
+    left:0;
+    right:0;
+    bottom:0;
+    .chat-edit{
+      position: absolute;
+      width:100%;
+      height:100px;
+      bottom:0;
+      box-sizing: border-box;
+      border-top:1px solid #ccc;
+    }
+    .chat-list{
+      position: absolute;
+      top:0;
+      bottom:100px;
+      left:0;
+      right:0;
+      overflow-x:hidden;
+      overflow-y: auto
+    }
+  }
+}
 </style>
 
 

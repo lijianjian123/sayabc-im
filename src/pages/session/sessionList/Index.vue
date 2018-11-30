@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class='session'>
     <Search />
     <ul class='session-list'>
       <li
@@ -22,11 +22,11 @@ import util from "@/utils";
 export default {
   components: { Search },
   computed: {
-    myPhoneId () {
-      return `${this.$store.state.userUID}`
+    myPhoneId() {
+      return `${this.$store.state.userUID}`;
     },
-    userInfos () {
-      return this.$store.state.userInfos
+    userInfos() {
+      return this.$store.state.userInfos;
     },
     sessionlist() {
       let sessionlist = this.$store.state.sessionlist.filter(item => {
@@ -86,10 +86,20 @@ export default {
 };
 </script>
 <style lang='less' scoped>
-.session-list {
-  .session-item {
-    height: 40px;
-    border-bottom: 1px solid #ccc;
+.session {
+  position:relative;
+  height:100%;
+  .session-list {
+    position: absolute;
+    top:40px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow: auto;
+    .session-item {
+      height: 40px;
+      border-bottom: 1px solid #ccc;
+    }
   }
 }
 </style>
