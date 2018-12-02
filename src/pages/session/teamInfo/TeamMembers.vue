@@ -45,11 +45,6 @@ export default {
       }
     }
   },
-  watch: {
-    "$store.state.isCheckMember": function() {
-      console.log("1111111122222");
-    }
-  },
   computed: {
     sessionId() {
       console.log("lalalalala change");
@@ -116,6 +111,8 @@ export default {
 </script>
 <style lang='less' scoped>
    .team-members {
+       height:100%;
+       overflow: auto;
        .team-members-list {
          padding:10px;
          li{

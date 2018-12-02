@@ -1,6 +1,9 @@
 <template>
   <div class='team-info-content'>
-    <div class='team-info-header'>{{isCheckMember?'组内成员':'老师信息'}}</div>
+    <div class='team-info-header'>
+        <span>{{isCheckMember?'组内成员':'老师信息'}}</span>
+        <button @click='reviseTeamMembers'>加人/删人（测试）</button>
+    </div>
     <div v-if='sessionId'>
       <team-members v-show='isCheckMember' />
       <teacher-info v-show='!isCheckMember' />
@@ -10,7 +13,16 @@
 <script>
 import TeacherInfo from "./TeacherInfo.vue";
 import TeamMembers from "./TeamMembers.vue";
+import util from "@/utils";
 export default {
+  data() {
+    return {
+        teamMemberList: {
+            add: ['libbyfei','18811111111'],
+            remove: ['18811111111']
+        }
+    }
+  },
   components: {
     TeacherInfo,
     TeamMembers
@@ -19,9 +31,50 @@ export default {
     isCheckMember() {
       return this.$store.state.isCheckMember;
     },
+    scene() {
+      return this.sessionId ? util.parseSession(this.sessionId).scene : "";
+    },
     sessionId() {
       return this.$store.state.currSessionId;
-    }
+    },
+    teamInfo() {
+      if (this.scene === "team") {
+        var teamId = this.sessionId.replace("team-", "");
+        let teamInfo = this.$store.state.teamlist.find(team => {
+          return team.teamId === teamId;
+        });
+        return teamInfo;
+      }
+      return undefined;
+    },
+  },
+  methods: {
+    reviseTeamMembers() {
+       if(this.teamMemberList.add.length) {
+          this.toggleMembers("addTeamMembers");
+       }
+       if(this.teamMemberList.remove.length) {
+          this.toggleMembers("removeTeamMembers");
+       }
+    },
+    toggleMembers(funName) {
+      console.log('移除成员')
+      var accounts = this.teamMemberList.remove;
+      this.$store.dispatch('delegateTeamFunction', {
+        functionName: funName, 
+        options: {
+          teamId: this.teamInfo.teamId,
+          accounts: accounts,
+          done: (error, obj)=>{
+           if (error) {
+              console.log('移除报错')
+              return;
+            }
+            console.log('移除成功',obj)
+          }
+        }
+      })
+    },
   }
 };
 </script>

@@ -21,7 +21,7 @@ import {sendMsg, sendFileMsg, sendMsgReceipt, sendRobotMsg, revocateMsg} from '.
 // import {initChatroomInfos, getChatroomInfo, getChatroomMembers, clearChatroomMembers} from './chatroomInfos'
 // import { delegateTeamFunction, onTeamNotificationMsg, enterSettingPage, getTeamMembers,
 //         checkTeamMsgReceipt, getTeamMsgReads} from './team'
-import {onTeamNotificationMsg, checkTeamMsgReceipt, getTeamMembers} from './team'
+import {delegateTeamFunction, onTeamNotificationMsg, checkTeamMsgReceipt, getTeamMembers} from './team'
 // function connectNim ({state, commit, dispatch}, obj) {
 //   let {force} = Object.assign({}, obj)
 //   // 操作为内容页刷新页面，此时无nim实例
@@ -158,8 +158,8 @@ export default {
 
   // // 搜索群
   // searchTeam,
-  // // 代理sdk中的群方法
-  // delegateTeamFunction,
+  // 代理sdk中的群方法
+  delegateTeamFunction,
   // 处理群消息回调
   onTeamNotificationMsg,
   // // 进入群信息设置页
