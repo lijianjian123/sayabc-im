@@ -9,9 +9,9 @@
       <!-- 要显示聊天界面要有sessionId  通过store传递 -->
       <chat />
     </div>
-    <div class='team-members'>
+    <div class='team-info'>
       <!-- 显示群成员信息 -->
-      <team-members />
+      <team-info />
     </div>
   </div>
 </template>
@@ -19,13 +19,13 @@
 <script>
 import SessionList from "./sessionList/Index.vue";
 import Chat from "./chat/Index.vue";
-import TeamMembers from "./TeamMembers";
+import TeamInfo from "./teamInfo/Index.vue";
 
 export default {
   components: {
     SessionList,
     Chat,
-    TeamMembers
+    TeamInfo
   },
   computed: {
     sessionId() {
@@ -41,7 +41,7 @@ export default {
     height:100%;
     background:#e5e5e5;
     overflow: hidden;
-    .session-list, .chat, .team-members {
+    .session-list, .chat, .team-info {
         float: left;
         height:100%;
         box-sizing: border-box
@@ -54,7 +54,7 @@ export default {
     .chat {
         width:55%;
     }
-    .team-members {
+    .team-info {
         width:20%;
         min-width:200px;
         border-left:1px solid #ccc;

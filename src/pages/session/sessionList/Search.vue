@@ -13,14 +13,14 @@
       >搜索</button>
     </div>
     <div class='search-list'>
-      <ul>
+      <!-- <ul>
         <li
           v-for="item in searchList"
           @click='enterChat(item)'
         >
           {{item.to}}
         </li>
-      </ul>
+      </ul> -->
     </div>
   </div>
 </template>

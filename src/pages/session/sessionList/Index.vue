@@ -7,7 +7,7 @@
         class='session-item'
         @click="enterChat(session)"
       >
-        <p>
+        <p >
           <span>{{session.name}}</span>
           <span>{{session.updateTimeShow}}</span>
         </p>
@@ -80,7 +80,7 @@ export default {
     enterChat(session) {
       if (session && session.id)
         this.$store.dispatch("setCurrSession", session.id);
-      this.$store.commit("isCheckMember", false);
+        this.$store.commit("isCheckMember", false);
     }
   }
 };

@@ -4,7 +4,7 @@
       <div class='session-name'>{{sessionName}}</div>
       <div class='session-handle'>
         <button class='follow-up-btn'>跟进</button>
-        <span class='check-member'>关闭查看</span>
+        <span class='check-member' @click='checkInfo'>{{isCheckMember?'关闭查看':'查看成员'}}</span>
       </div>
     </div>
     <div
@@ -34,6 +34,9 @@ export default {
     ChatEditor
   },
   computed: {
+    isCheckMember() {
+      return this.$store.state.isCheckMember;
+    },
     sessionId() {
       return this.$store.state.currSessionId;
     },
@@ -116,6 +119,11 @@ export default {
     myInfo () {
       return this.$store.state.myInfo
     },
+  },
+  methods: {
+    checkInfo() {
+      this.$store.commit("isCheckMember",!this.isCheckMember);
+    }
   }
 };
 </script>
