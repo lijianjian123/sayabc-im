@@ -28,6 +28,7 @@
 import util from "@/utils";
 import ChatList from "./ChatList";
 import ChatEditor from './ChatEditor'
+
 export default {
   components: {
     ChatList,

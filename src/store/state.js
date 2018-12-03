@@ -103,5 +103,16 @@ export default {
   // 聊天室成员列表
   currChatroomMembers: [],
   //查看成员
-  isCheckMember: false
+  isCheckMember: false,
+
+  // 聊天语音相关信息
+  isHandUp: false,
+  chatVoiceShowCall: false,
+  chatVoiceShowBeCall: false,
+  becallHasRecept: false, // 被叫接受语音通话
+  becallHasReject: false, // 被叫拒绝语音通话
+  onCallUserInfos: [], // 参加语音通话的人员(实时更新)
+  sbLeaveInfo: [], // 通话期间推出频道的人员信息
+
+
 }

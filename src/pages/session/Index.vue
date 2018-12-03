@@ -2,7 +2,7 @@
   <div class='sayabc-session'>
     <div class="session-list">
       <!-- <search />-->
-      <session-list /> 
+      <session-list />
     </div>
     <div class='chat'>
       <!-- <chat-header/> -->

@@ -7,6 +7,9 @@ import store from './store'
 import '@/assets/css/reset.css'
 Vue.config.productionTip = false
 
+// 检查rtc支持情况 挂在了window.rtcSupport
+require('./sdk/rtcSupport.js')
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

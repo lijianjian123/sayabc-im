@@ -582,5 +582,34 @@ export default {
   },
   isCheckMember(state, boolean) {
     state.isCheckMember = boolean
-  }
+  },
+  // 语音聊天的处理
+  netcallHandleUp(state, boolean) {
+    state.isHandUp = true
+  },
+  updateCallState(state, boolean) { // call的界面
+    state.chatVoiceShowCall = boolean
+  },
+  updateBeCallState(state, boolean) { // 被call的界面
+    state.chatVoiceShowBeCall = boolean
+  },
+  updateBeCallHasRecept(state, boolean) { // 被叫接受语音通话
+    state.becallHasRecept = boolean
+  },
+  updateBeCallHasReject(state, boolean) { // 被叫拒绝语音通话
+    state.becallHasReject = boolean
+  },
+  updateOnCallUserInfos(state, obj, flag) { // 维护加入通话的用户
+    // 加入flag:true添加; flag: false删除  会话列表 离开 都要更新下列表
+    if(flag) { // 添加成员前去重
+      let temArr = state.onCallUserInfos
+       // ...去重操作
+       state.onCallUserInfos = temArr
+    }else{
+      let temArr = state.sbLeaveInfo
+      // ... 去重操作
+      state.sbLeaveInfo = temArr
+    }
+
+  },
 }

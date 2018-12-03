@@ -1,5 +1,15 @@
 <template>
   <div>
+    <div id="container">
+      <show-call-page
+        v-if="chatVoiceShowCall && !isHandUp"
+      />
+    </div>
+    <div id="remoteContainer">
+      <show-be-call-page
+        v-if="chatVoiceShowBeCall && !isHandUp"
+      />
+    </div>
     <ul>
       <chat-item
         v-for="msg in msglist"
@@ -14,9 +24,14 @@
 </template>
 <script>
 import ChatItem from "./ChatItem";
+import ShowCallPage from './ShowCallPage'
+import ShowBeCallPage from './ShowBeCallPage'
+
 export default {
   components: {
-    ChatItem
+    ChatItem,
+    ShowCallPage,
+    ShowBeCallPage
   },
   props: {
     msglist: {
@@ -42,6 +57,17 @@ export default {
       default() {
         return {};
       }
+    }
+  },
+  computed: {
+    chatVoiceShowCall () {
+      return this.$store.state.chatVoiceShowCall
+    },
+    chatVoiceShowBeCall  () {
+      return this.$store.state.chatVoiceShowBeCall
+    },
+    isHandUp () {
+      return this.$store.state.isHandUp
     }
   },
   mounted() {
