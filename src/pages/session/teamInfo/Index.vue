@@ -2,7 +2,8 @@
   <div class='team-info-content'>
     <div class='team-info-header'>
         <span>{{isCheckMember?'组内成员':'老师信息'}}</span>
-        <button @click='reviseTeamMembers'>加人/删人（测试）</button>
+        <button @click='toggleMembers("addTeamMembers")'>加人</button>
+        <button @click='toggleMembers("removeTeamMembers")'>删人</button>
     </div>
     <div v-if='sessionId'>
       <team-members v-show='isCheckMember' />
@@ -58,7 +59,6 @@ export default {
        }
     },
     toggleMembers(funName) {
-      console.log('移除成员')
       var accounts = this.teamMemberList.remove;
       this.$store.dispatch('delegateTeamFunction', {
         functionName: funName, 
@@ -67,7 +67,7 @@ export default {
           accounts: accounts,
           done: (error, obj)=>{
            if (error) {
-              console.log('移除报错')
+              console.log(error,'移除报错')
               return;
             }
             console.log('移除成功',obj)

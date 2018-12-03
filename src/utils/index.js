@@ -364,5 +364,17 @@ Utils.teamConfigMap = {
     'normal': '普通成员'
   }
 }
+//获取textarea中光标的位置
+Utils.getPosition = function (element) {
+  let cursorPos = 0;
+  if (document.selection) {//IE
+      var selectRange = document.selection.createRange();
+      selectRange.moveStart('character', -element.value.length);
+      cursorPos = selectRange.text.length;
+  } else if (element.selectionStart || element.selectionStart == '0') {
+      cursorPos = element.selectionStart;
+  }
+  return cursorPos;
+}
 
 export default Utils

@@ -1,7 +1,12 @@
 <template>
   <div class="m-chat-editor">
     <div class="u-editor-input">
-      <textarea  v-model="msgToSent" @focus='onInputFocus'></textarea>
+      <textarea ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
+          
+      </textarea>
+      <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
+          <li @click='at(item)' v-for='item in members' v-if='item.alias!=="我"'>{{item.alias}}</li>
+      </ul>
     </div>
     <div class="u-editor-icons">
       <span v-if="!isRobot" class="u-editor-icon" @change="sendFileMsg">
@@ -39,16 +44,15 @@ export default {
   },
   watch: {
     msgToSent(curVal, oldVal) {
-      if (this.isRobot) {
+      if (this.isRobot || this.scene !== 'team') {
         return;
       }
-      let indexAt = this.msgToSent.indexOf("@");
-      if (indexAt >= 0 && indexAt === this.msgToSent.length - 1) {
-        if (this.robotslist && this.robotslist.length > 0) {
-          this.isRobotListShown = true;
-        }
+      if (this.msgToSent[this.msgToSent.length - 1] === '@') {
+         let position = util.getPosition(this.$refs['editTextArea'])
+          this.isAt = true;
+          this.left = position * 14
       } else if (this.isRobotListShown === true) {
-        this.isRobotListShown = false;
+          this.isAt = false;
       }
     }
   },
@@ -59,10 +63,60 @@ export default {
       msgToSent: "",
       icon1: `${config.resourceUrl}/im/chat-editor-1.png`,
       icon2: `${config.resourceUrl}/im/chat-editor-2.png`,
-      icon3: `${config.resourceUrl}/im/chat-editor-3.png`
+      icon3: `${config.resourceUrl}/im/chat-editor-3.png`,
+      left: 0,
+      isAt: false
     };
   },
+  computed: {
+    sessionId() {
+      return this.$store.state.currSessionId;
+    },  
+    teamInfo() {
+        console.log('1234567890')
+      if (this.scene === "team") {
+        var teamId = this.sessionId.replace("team-", "");
+        let teamInfo = this.$store.state.teamlist.find(team => {
+          return team.teamId === teamId;
+        });
+        return teamInfo;
+      }
+      return undefined;
+    },
+    members() {
+      if (this.teamInfo) {
+        var members = this.$store.state.teamMembers[this.teamInfo.teamId];
+        var userInfos = this.$store.state.userInfos;
+        var needSearchAccounts = [];
+        if (members) {
+          members = members.map(item => {
+            var member = Object.assign({}, item); //重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+            if (member.account === this.$store.state.userUID) {
+              member.alias = "我";
+              member.avatar = this.$store.state.myInfo.avatar;
+            } else {
+              member.avatar = userInfos[member.account].avatar;
+              member.alias =
+                member.nickInTeam || userInfos[member.account].nick;
+            }
+            return member;
+          });
+          return members;
+        }
+        return [];
+      }
+    }
+  },
   methods: {
+    getAtList() {
+       let atList = []; 
+       this.members.forEach(item => {
+           if(this.msgToSent.includes('@' + item.alias)) {
+              atList.push(item.id)
+           }
+       }); 
+       return atList;
+    },  
     sendTextMsg() {
       if (this.invalid) {
         this.$toast(this.invalidHint);
@@ -76,64 +130,73 @@ export default {
         return;
       }
       this.msgToSent = this.msgToSent.trim();
-      // 如果是机器人
-      if (this.isRobot) {
-        this.$store.dispatch("sendRobotMsg", {
-          type: "text",
-          scene: this.scene,
-          to: this.to,
-          robotAccid: this.to,
-          // 机器人后台消息
-          content: this.msgToSent,
-          // 显示的文本消息
-          body: this.msgToSent
-        });
-      } else {
-        let robotAccid = "";
-        let robotText = "";
-
-        let atUsers = this.msgToSent.match(/@[^\s@$]+/g);
-        if (atUsers) {
-          for (let i = 0; i < atUsers.length; i++) {
-            let item = atUsers[i].replace("@", "");
-            if (this.robotInfosByNick[item]) {
-              robotAccid = this.robotInfosByNick[item].account;
-              robotText = (this.msgToSent + "").replace(atUsers[i], "").trim();
-              break;
-            }
-          }
-        }
-        if (robotAccid) {
-          if (robotText) {
-            this.$store.dispatch("sendRobotMsg", {
-              type: "text",
-              scene: this.scene,
-              to: this.to,
-              robotAccid,
-              // 机器人后台消息
-              content: robotText,
-              // 显示的文本消息
-              body: this.msgToSent
-            });
-          } else {
-            this.$store.dispatch("sendRobotMsg", {
-              type: "welcome",
-              scene: this.scene,
-              to: this.to,
-              robotAccid,
-              // 显示的文本消息
-              body: this.msgToSent
-            });
-          }
-        } else {
-          this.$store.dispatch("sendMsg", {
+      let atList = this.getAtList();
+      this.$store.dispatch("sendMsg", {
             type: "text",
             scene: this.scene,
             to: this.to,
-            text: this.msgToSent
-          });
-        }
-      }
+            text: this.msgToSent,
+            custom: JSON.stringify(atList)
+      });
+      // 如果是机器人
+    //   if (this.isRobot) {
+    //     this.$store.dispatch("sendRobotMsg", {
+    //       type: "text",
+    //       scene: this.scene,
+    //       to: this.to,
+    //       robotAccid: this.to,
+    //       // 机器人后台消息
+    //       content: this.msgToSent,
+    //       // 显示的文本消息
+    //       body: this.msgToSent
+    //     });
+    //   } else {
+    //     let robotAccid = "";
+    //     let robotText = "";
+
+    //     let atUsers = this.msgToSent.match(/@[^\s@$]+/g);
+    //     if (atUsers) {
+    //       for (let i = 0; i < atUsers.length; i++) {
+    //         let item = atUsers[i].replace("@", "");
+    //         if (this.robotInfosByNick[item]) {
+    //           robotAccid = this.robotInfosByNick[item].account;
+    //           robotText = (this.msgToSent + "").replace(atUsers[i], "").trim();
+    //           break;
+    //         }
+    //       }
+    //     }
+    //     if (robotAccid) {
+    //       if (robotText) {
+    //         this.$store.dispatch("sendRobotMsg", {
+    //           type: "text",
+    //           scene: this.scene,
+    //           to: this.to,
+    //           robotAccid,
+    //           // 机器人后台消息
+    //           content: robotText,
+    //           // 显示的文本消息
+    //           body: this.msgToSent
+    //         });
+    //       } else {
+    //         this.$store.dispatch("sendRobotMsg", {
+    //           type: "welcome",
+    //           scene: this.scene,
+    //           to: this.to,
+    //           robotAccid,
+    //           // 显示的文本消息
+    //           body: this.msgToSent
+    //         });
+    //       }
+    //     } else {
+    //       this.$store.dispatch("sendMsg", {
+    //         type: "text",
+    //         scene: this.scene,
+    //         to: this.to,
+    //         text: this.msgToSent,
+    //         custom: {"name":'a'}
+    //       });
+    //     }
+    //   }
       this.msgToSent = "";
     },
     sendFileMsg() {
@@ -179,6 +242,11 @@ export default {
         e.target.scrollIntoView();
         pageUtil.scrollChatListDown();
       }, 200);
+    },
+    at(item) {
+       this.isAt = false; 
+       this.msgToSent += item.alias;
+       this.$refs['editTextArea'].focus();
     }
   }
 };
@@ -195,17 +263,35 @@ export default {
       float:left;
       width:80%;
       height:100%;
+      position: relative;
       textarea{
           width:100%;
           height:100%;
           border-radius: 5px;
           resize: none;
       }
+      .ait-list {
+          position: absolute;
+          top:0;
+          height:130px;
+          overflow: auto;
+          width:150px;
+          border:1px solid #ccc;
+          background: #fff;
+          li{
+              height:30px;
+              line-height:30px;
+          }
+          li:hover{
+              background:#0091e4;
+              color:#fff;
+          }
+      }
   }
   .u-editor-icons {
       float:left;
       width:20%;
-      min-width: 110px;
+      min-width: 120px;
       height:100%;
       padding-top:20px;
       box-sizing: border-box;
