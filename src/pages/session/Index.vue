@@ -8,6 +8,8 @@
       <!-- <chat-header/> -->
       <!-- 要显示聊天界面要有sessionId  通过store传递 -->
       <chat />
+      <!-- <div id="container"></div>
+      <div id="remoteContainer"></div> -->
     </div>
     <div class='team-info'>
       <!-- 显示群成员信息 -->

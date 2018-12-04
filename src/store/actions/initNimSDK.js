@@ -2,7 +2,7 @@
  * SDK连接相关
  */
 
-import config from '@/configs'
+import CONFIG from '@/configs/index'
 // import pageUtil from '@/utils/page'
 import util from '@/utils'
 import store from '../'
@@ -16,7 +16,9 @@ import {onSysMsgs, onSysMsg, onSysMsgUnread, onCustomSysMsgs} from './sysMsgs'
 import { onTeams, onSynCreateTeam, onCreateTeam, onUpdateTeam, onTeamMembers, onUpdateTeamMember, onAddTeamMembers,
   onRemoveTeamMembers, onUpdateTeamManagers, onDismissTeam, onUpdateTeamMembersMute, onTeamMsgReceipt} from './team'
 
-const SDK = require('@/sdk/' + 'NIM_Web_SDK_v5.8.0')
+const config = CONFIG
+const SDK = require('@/sdk/' + config.sdk)
+const WebRTCSDK = require('@/sdk/' + config.webrtcSDK)
 
 // 重新初始化 NIM SDK
 export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
@@ -24,6 +26,8 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
     state.nim.disconnect()
   }
   dispatch('showLoading')
+  // 初始化SDK
+  SDK.NIM.use(WebRTCSDK) // 初始化IM时候加载音视频插件 然后再初始化音视频
   // 初始化SDK
   window.nim = state.nim = SDK.NIM.getInstance({
     //debug: true,

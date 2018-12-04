@@ -2,56 +2,10 @@
  * SDK连接相关
  */
 
-import config from '@/configs'
-import pageUtil from '@/utils/page'
-import util from '@/utils'
-import store from '../'
-import {
-  onFriends,
-  onSyncFriendAction
-} from './friends'
-import {
-  onRobots
-} from './robots'
-import {
-  onBlacklist,
-  onMarkInBlacklist
-} from './blacks'
-import {
-  onMyInfo,
-  onUserInfo
-} from './userInfo'
-import {
-  onSessions,
-  onUpdateSession
-} from './session'
-import {
-  onRoamingMsgs,
-  onOfflineMsgs,
-  onMsg
-} from './msgs'
-import {
-  onSysMsgs,
-  onSysMsg,
-  onSysMsgUnread,
-  onCustomSysMsgs
-} from './sysMsgs'
-import {
-  onTeams,
-  onSynCreateTeam,
-  onCreateTeam,
-  onUpdateTeam,
-  onTeamMembers,
-  onUpdateTeamMember,
-  onAddTeamMembers,
-  onRemoveTeamMembers,
-  onUpdateTeamManagers,
-  onDismissTeam,
-  onUpdateTeamMembersMute,
-  onTeamMsgReceipt
-} from './team'
+import CONFIG from '@/configs/index'
 
-const WebRTC = require('@/sdk/' + config.webrtcSDK)
+const config = CONFIG
+const WebRTCSDK = require('@/sdk/' + config.webrtcSDK)
 
 // 重新初始化 web rtc SDK
 export function initWebRTC({
@@ -61,7 +15,7 @@ export function initWebRTC({
 }) {
   // export function initWebRTC() {
 
-  const netcall = WebRTC.getInstance({
+  const netcall = WebRTCSDK.getInstance({
     nim: window.nim,
     container: document.getElementById('container'),
     remoteContainer: document.getElementById('remoteContainer'),

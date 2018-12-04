@@ -94,7 +94,7 @@ export default {
         // 有cookie，重新登录
         console.log('loginInfo',loginInfo)
         dispatch('initNimSDK', loginInfo)
-        // dispatch('initWebRTC')
+        dispatch('initWebRTC')
       }
     }
   },
@@ -111,6 +111,7 @@ export default {
 
   // 初始化 重新连接SDK
   initNimSDK,
+  initWebRTC,
   // 清空所有搜索历史纪录
   // resetSearchResult,
   // 搜索用户信息

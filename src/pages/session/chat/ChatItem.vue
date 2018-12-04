@@ -194,7 +194,6 @@ export default {
     };
   },
   beforeMount() {
-    console.log(this.myInfo, "myInfo is ");
     let item = Object.assign({}, this.rawMsg);
     // 标记用户，区分聊天室、普通消息
     if (item.flow === "in") {

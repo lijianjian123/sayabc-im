@@ -39,7 +39,8 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /NIM_Web_SDK.*\.js/,
+        // exclude: /NIM_Web_SDK.*\.js/,
+        exclude: resolve('/src/sdk'),
         include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
       },
       {

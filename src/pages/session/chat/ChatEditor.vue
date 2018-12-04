@@ -222,7 +222,6 @@ export default {
         return
       }
       let that = this
-      console.warn('开始视频通话 begin')
       console.log('音频通话开始', netcall)
       // 先挂断通话?
       // netcall.hangup()
