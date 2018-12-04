@@ -66,16 +66,6 @@ function onSendMsgDone (error, msg) {
       alert(error.message)
     }
   }
-  let {nim} = store.state;
-  if(msg.custom) {
-    nim.updateLocalSession({
-      id:msg.sessionId,
-      localCustom:msg.custom,
-      done: function() {
-         console.log('更新本地扩展成功')
-      }
-    })
-  }
   onMsg(msg)
 }
 

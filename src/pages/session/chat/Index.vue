@@ -167,7 +167,7 @@ export default {
     .chat-edit{
       position: absolute;
       width:100%;
-      height:100px;
+      height:160px;
       bottom:0;
       box-sizing: border-box;
       border-top:1px solid #ccc;

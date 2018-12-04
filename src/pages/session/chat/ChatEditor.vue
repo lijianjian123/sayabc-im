@@ -1,11 +1,14 @@
 <template>
   <div class="m-chat-editor">
     <div class="u-editor-input">
-      <textarea ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
+      <!-- <textarea @input='editMsg' ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
           
-      </textarea>
-      <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
-          <li @click='at(item)' v-for='item in members' v-if='item.alias!=="我"'>
+      </textarea> -->
+      <div ref='editTextArea' class='msg-textarea' contenteditable="true" @click='onInputFocus' @input="editMsg">
+         <!-- {{msgToSent}} -->
+      </div>
+      <ul  v-show='isAt' :style="{left:left+'px',bottom:bottom+'px'}" class='ait-list'>
+          <li @click='at(item)' v-for='(item,index) in members' :class='{active:index === activeIndex}'>
               <span class='avatar'><img :src="item.avatar" alt=""></span>
               <span class='alias'>{{item.alias}}</span>
           </li>
@@ -47,13 +50,21 @@ export default {
   },
   watch: {
     msgToSent(curVal, oldVal) {
+        //console.log(msgToSent,'msgToSent22222')
       if (this.isRobot || this.scene !== 'team') {
         return;
       }
+      console.log(this.msgToSent,'this.msgToSent1111')
       if (this.msgToSent[this.msgToSent.length - 1] === '@') {
-         let position = util.getPosition(this.$refs['editTextArea'])
           this.isAt = true;
-          this.left = position * 14
+          //let msgToSent = this.msgToSent.substring(0,this.msgToSent.length-1)+`<span id="at-${this.msgToSent.length-1}">@</span>`
+          let child = document.createElement('SPAN');
+          child.id = `at-${this.msgToSent.length-1}`
+          this.$refs['editTextArea'].appendChild(child);
+          let oSpan = document.getElementById(`at-${this.msgToSent.length-1}`);
+          this.left = oSpan.offsetLeft+20;
+          this.bottom = oSpan.offsetTop+10;
+          console.log(oSpan.offsetTop,'top is :======')
       } else {
           this.isAt = false;
       }
@@ -68,7 +79,9 @@ export default {
       icon2: `${config.resourceUrl}/im/chat-editor-2.png`,
       icon3: `${config.resourceUrl}/im/chat-editor-3.png`,
       left: 0,
-      isAt: false
+      bottom: 0,
+      isAt: false,
+      activeIndex: 0
     };
   },
   computed: {
@@ -85,30 +98,28 @@ export default {
       }
       return undefined;
     },
-     members() {
+    members() {
       if (this.teamInfo) {
         var members = this.$store.state.teamMembers[this.teamInfo.teamId];
         var userInfos = this.$store.state.userInfos;
         var needSearchAccounts = [];
         if (members) {
-          members = members.map(item => {
+          let newMembers = [];  
+          members.forEach(item => {
             var member = Object.assign({}, item); //重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
             member.valid = true; //被管理员移除后，标记为false
-            if (member.account === this.$store.state.userUID) {
-              member.alias = "我";
-              member.avatar = this.$store.state.myInfo.avatar;
-              this.isOwner = member.type === "owner";
-              this.hasManagePermission = member.type !== "normal";
-            } else if (userInfos[member.account] === undefined) {
-              needSearchAccounts.push(member.account);
-              member.avatar = member.avatar || this.avatar;
-              member.alias = member.nickInTeam || member.account;
-            } else {
-              member.avatar = userInfos[member.account].avatar;
-              member.alias =
-                member.nickInTeam || userInfos[member.account].nick;
+            if (member.account !== this.$store.state.userUID) {
+                if (userInfos[member.account] === undefined) {
+                    needSearchAccounts.push(member.account);
+                    member.avatar = member.avatar || this.avatar;
+                    member.alias = member.nickInTeam || member.account;
+                } else {
+                    member.avatar = userInfos[member.account].avatar;
+                    member.alias =
+                        member.nickInTeam || userInfos[member.account].nick;
+                }
+                newMembers.push(member);
             }
-            return member;
           });
           //如果群中的成员没有在现有的用户列表中，需要重新拉取用户信息
           if (needSearchAccounts.length > 0 && !this.hasSearched) {
@@ -117,8 +128,7 @@ export default {
               this.searchUsers(needSearchAccounts.splice(0, 150));
             }
           }
-          console.log(members,'members +++++++++')
-          return members;
+          return newMembers;
         }
         return [];
       }
@@ -260,7 +270,7 @@ export default {
     onInputFocus(e) {
       setTimeout(() => {
         // todo fixme 解决iOS输入框被遮挡问题，但会存在空白缝隙
-        e.target.scrollIntoView();
+        // e.target.scrollIntoView();
         pageUtil.scrollChatListDown();
       }, 200);
     },
@@ -288,6 +298,24 @@ export default {
         }
       });
     },
+    editMsg(e) {
+      console.log(e.target.value,'e is :=====')
+      this.msgToSent = e.target.textContent
+    }
+  },
+  mounted() {
+      window.addEventListener('keydown', (e) => {
+         if(!this.isAt) 
+            return false;
+         if(e.keyCode === 38) {
+           this.activeIndex = this.activeIndex >=1 ? this.activeIndex - 1 : this.members.length-1;
+         }
+         if(e.keyCode === 40) {  
+            
+          this.activeIndex = this.activeIndex < this.members.length-1 ? this.activeIndex + 1 : 0;
+          console.log(this.activeIndex,'this.activeIndex')
+         }
+      })
   }
 };
 </script>
@@ -304,11 +332,16 @@ export default {
       width:80%;
       height:100%;
       position: relative;
-      textarea{
+      .msg-textarea{
+          position: relative;
           width:100%;
           height:100%;
+          overflow: auto;
           border-radius: 5px;
-          resize: none;
+          background:#fff;
+          outline: none;
+          padding:5px;
+          box-sizing: border-box;
       }
       .ait-list {
           position: absolute;
@@ -318,6 +351,7 @@ export default {
           width:150px;
           border:1px solid #ccc;
           background: #fff;
+          z-index: 100;
           li{
               height:30px;
               line-height:30px;
@@ -331,8 +365,8 @@ export default {
                   vertical-align: bottom;
               }
           }
-          li:hover{
-              background:#0091e4;
+          li.active{
+              background:#5cacde;
               color:#fff;
           }
       }

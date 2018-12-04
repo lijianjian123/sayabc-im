@@ -11,7 +11,8 @@
           <span>{{session.name}}</span>
           <span>{{session.updateTimeShow}}</span>
         </p>
-        <p>{{session.localCustom && JSON.parse(session.localCustom).includes(myInfo.account) ? '有人@我' : session.lastMsgShow}}</p>
+        <p>{{session.unread !== 0 && session.isAtMe ? '有人@我' : session.lastMsgShow}}</p>
+        <p>{{session.unread}}</p>
       </li>
     </ul>
   </div>
@@ -19,11 +20,15 @@
 <script>
 import Search from "./Search.vue";
 import util from "@/utils";
+let hasUnreadSession = [];
 export default {
   components: { Search },
   computed: {
     myInfo() {
       return this.$store.state.myInfo
+    },
+    msgs() {
+      return this.$store.state.msgs
     },
     myPhoneId() {
       return `${this.$store.state.userUID}`;
@@ -32,12 +37,9 @@ export default {
       return this.$store.state.userInfos;
     },
     sessionlist() {
+      hasUnreadSession = [];
       let sessionlist = this.$store.state.sessionlist.filter(item => {
-        if(item.localCustom) {
-console.log(item.localCustom,JSON.parse(item.localCustom),this.myInfo.account,typeof this.myInfo.account,'localCustom is :===')
-       
-        }
-         item.name = "";
+        item.name = "";
         if (item.scene === "p2p") {
           let userInfo = null;
           if (item.to !== this.myPhoneId) {
@@ -77,10 +79,30 @@ console.log(item.localCustom,JSON.parse(item.localCustom),this.myInfo.account,ty
         if (item.updateTime) {
           item.updateTimeShow = util.formatDate(item.updateTime, true);
         }
+        if(item.unread !== 0) {
+          let {id,unread} = item;
+          let msgList = this.msgs[item.id];
+          console.log(msgList,'msgList +++++++++')
+          console.log(msgList.length-unread,'length +++++++++')
+          let unreadMsg = msgList.slice(msgList.length-unread)
+          console.log(unreadMsg,'unreadMsg +++++++++')
+          unreadMsg.forEach((msg) => {
+            if(msg.custom) {
+              console.log(JSON.parse(msg.custom),this.myInfo.account,JSON.parse(msg.custom).includes(this.myInfo.account),
+              'custom +++++++++')
+            }
+            if(msg.custom && JSON.parse(msg.custom).includes(this.myInfo.account)) { 
+              item.isAtMe = true;
+            }
+          })
+        }
         return item;
       });
-      console.log(sessionlist,'sessionlist ++++++++++++++++++')
       return sessionlist;
+    },
+    teamMsgReadsDetail() {
+      console.log(this.$store.state.teamMsgReadsDetail,'this.$store.state.teamMsgReadsDetail')
+      return this.$store.state.teamMsgReadsDetail
     }
   },
   methods: {
@@ -88,8 +110,23 @@ console.log(item.localCustom,JSON.parse(item.localCustom),this.myInfo.account,ty
       if (session && session.id)
         this.$store.dispatch("setCurrSession", session.id);
         this.$store.commit("isCheckMember", false);
+    },
+    getSessionMsg(item) {
+      let {sessionId,unread} = item;
+      this.$store.commit('updateCurrSessionMsgs', {
+          type: 'init',
+          sessionId
+        })
+        console.log(this.$store.state.currSessionMsgs,'msg ++++++++++111111')
+        let msgList = this.$store.state.currSessionMsgs;
+        let unreadMsg = this.msgList.slice(msgList.length-unread)
+        unreadMsg.forEach((item) => {
+           if(item.custom && JSON.parse(item.custom).includes(this.myInfo.account)) { 
+                item.isAtMe = true;
+           }
+        })
+      }
     }
-  }
 };
 </script>
 <style lang='less' scoped>

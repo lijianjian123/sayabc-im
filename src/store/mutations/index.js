@@ -119,7 +119,6 @@ export default {
     state.sessionlist.forEach(item => {
       state.sessionMap[item.id] = item
     })
-    console.log(state.sessionlist, 'state.sessionlist is :')
   },
   deleteSessions(state, sessionIds) {
     const nim = state.nim
@@ -277,6 +276,7 @@ export default {
           }
           state.currSessionMsgs.push(msg)
         })
+
         store.dispatch('checkTeamMsgReceipt', state.currSessionMsgs)
       }
     } else if (type === 'put') { // 追加一条消息
