@@ -114,5 +114,8 @@ export default {
   onCallUserInfos: [], // 参加语音通话的人员(实时更新)
   sbLeaveInfo: [], // 通话期间推出频道的人员信息
 
+  // 临时登录账号
+  temAccountName: ''
+
 
 }

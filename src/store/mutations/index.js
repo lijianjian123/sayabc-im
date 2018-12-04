@@ -612,4 +612,11 @@ export default {
     }
 
   },
+
+  // 临时登录
+  updateAccount(state, temAccountName) {
+    // 重置临时登录账号
+    console.log('开始重置临时登录账号')
+    state.temAccountName = temAccountName
+  }
 }

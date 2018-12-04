@@ -5,7 +5,7 @@
 import CONFIG from '@/configs/index'
 
 const config = CONFIG
-const WebRTCSDK = require('@/sdk/' + config.webrtcSDK)
+const WebRTC = require('@/sdk/' + config.webrtcSDK)
 
 // 重新初始化 web rtc SDK
 export function initWebRTC({
@@ -15,7 +15,7 @@ export function initWebRTC({
 }) {
   // export function initWebRTC() {
 
-  const netcall = WebRTCSDK.getInstance({
+  const netcall = WebRTC.getInstance({
     nim: window.nim,
     container: document.getElementById('container'),
     remoteContainer: document.getElementById('remoteContainer'),

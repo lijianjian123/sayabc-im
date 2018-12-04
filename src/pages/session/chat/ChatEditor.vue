@@ -2,10 +2,11 @@
   <div class="m-chat-editor">
     <div class="u-editor-input">
       <textarea ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
+      <!-- <textarea ref='editTextArea'  v-model="msgToSent"> -->
 
       </textarea>
       <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
-          <li @click='at(item)' v-for='item in members' v-if='item.alias!=="我"'>{{item.alias}}</li>
+          <li @click='at(item)' v-for='(item, index) in members' v-if='item.alias!=="我"' :key="index">{{item.alias}}</li>
       </ul>
     </div>
     <div class="u-editor-icons">
@@ -133,13 +134,14 @@ export default {
         return;
       }
       this.msgToSent = this.msgToSent.trim();
-      let atList = this.getAtList();
+      // let atList = this.getAtList();
       this.$store.dispatch("sendMsg", {
             type: "text",
             scene: this.scene,
             to: this.to,
             text: this.msgToSent,
-            custom: JSON.stringify(atList)
+            // custom: JSON.stringify(atList)
+            custom: '[]'
       });
       // 如果是机器人
     //   if (this.isRobot) {
@@ -330,17 +332,17 @@ export default {
 .m-chat-editor {
   background: #e5f4ff;
   padding: 5px;
-  width:100%;
+  // width:100%;
   height:100%;
   box-sizing: border-box;
   .u-editor-input {
       float:left;
-      width:80%;
+      width:70%;
       height:100%;
       position: relative;
       textarea{
           width:100%;
-          height:100%;
+          // height:100%;
           border-radius: 5px;
           resize: none;
       }
@@ -364,17 +366,13 @@ export default {
   }
   .u-editor-icons {
       float:left;
-      width:20%;
-      min-width: 120px;
+      width:30%;
       height:100%;
-      padding-top:20px;
       box-sizing: border-box;
       padding-left:10px;
       .u-editor-icon {
           position: relative;
           display: inline-block;
-          width:50px;
-          height:50px;
           input{
              opacity: 0;
              position: absolute;

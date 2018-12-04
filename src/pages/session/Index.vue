@@ -1,5 +1,10 @@
 <template>
   <div class='sayabc-session'>
+    <!-- 登录伪造页面 -->
+    <div class="login" v-if="!temAccountName">
+      <input type="text" placeholder="请输入账号" v-model="account">
+      <button @click="handleLogin">登录</button>
+    </div>
     <div class="session-list">
       <!-- <search />-->
       <session-list />
@@ -22,8 +27,16 @@
 import SessionList from "./sessionList/Index.vue";
 import Chat from "./chat/Index.vue";
 import TeamInfo from "./teamInfo/Index.vue";
+import cookie from "@/utils/cookie";
+import md5 from "@/utils/md5";
+
 
 export default {
+  data () {
+    return {
+      account: ''
+    }
+  },
   components: {
     SessionList,
     Chat,
@@ -32,6 +45,22 @@ export default {
   computed: {
     sessionId() {
       return this.$store.state.currSessionId;
+    },
+    temAccountName () {
+      return this.$store.state.temAccountName
+    }
+  },
+  methods: {
+    handleLogin () {
+      console.log('denglu', this.account)
+      if(!this.account) return
+
+      let sdktoken = md5("123456");
+      cookie.setCookie("uid", this.account.toLowerCase());
+      cookie.setCookie("sdktoken", sdktoken);
+
+      this.$store.commit('updateAccount', this.account)
+      this.$store.dispatch('connect')
     }
   }
 };
@@ -43,6 +72,17 @@ export default {
     height:100%;
     background:#e5e5e5;
     overflow: hidden;
+    .login {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 80px;
+      line-height: 80px;
+      z-index: 999;
+      border: 1px solid yellow;
+      text-align: center;
+      background: rgba(0, 0, 0, 1)
+    }
     .session-list, .chat, .team-info {
         float: left;
         height:100%;

@@ -14,17 +14,36 @@ function login() {
   // 真实场景应在此向服务器发起ajax请求
   let sdktoken = md5("123456");
   // 服务端帐号均为小写
-  cookie.setCookie("uid", "123".toLowerCase());
+  cookie.setCookie("uid", this.temAccountName.toLowerCase());
   cookie.setCookie("sdktoken", sdktoken);
 }
 
 export default {
   name: "App",
+  data () {
+    return {
+      temAccountName: ''
+    }
+  },
   async mounted() {
+    let cookieUid = cookie.readCookie('uid')
+    if(cookieUid) {
+      this.$store.commit('updateAccount', cookieUid)
+      this.$store.dispatch('connect')
+    }
+    // this.temAccountName =  this.$store.state.temAccountName
     //自动登陆
-    await login();
+    // await login();
+
+   // 本demo做一次假登录
+    // 真实场景应在此向服务器发起ajax请求
+    // let sdktoken = md5("123456");
+    // 服务端帐号均为小写
+    // cookie.setCookie("uid", this.temAccountName.toLowerCase());
+    // cookie.setCookie("sdktoken", sdktoken);
+
     //链接sdk
-    this.$store.dispatch('connect')
+    // this.$store.dispatch('connect')
   }
 };
 </script>
