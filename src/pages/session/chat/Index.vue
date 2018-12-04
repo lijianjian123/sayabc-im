@@ -14,6 +14,7 @@
         <chat-list :msglist="msglist" :myInfo="myInfo" :isRobot="isRobot" :userInfos="userInfos"/>
       </div>
       <div class="chat-edit">
+        <!-- 父组件有很多可以props传递给子组件不要一遍一遍的写 TODO 比如scene teamInfo等!!! -->
         <chat-editor
           :scene="scene"
           :to="to"
@@ -23,8 +24,14 @@
       </div>
     </div>
     <!-- 邀请成员弹窗 -->
-    <div class="inviteTeamVoice" v-if="showSelectMember">
-      <select-members />
+    <div class="inviteTeamVoice" v-if="scene==='team' && showSelectMember">
+      <select-members
+        :teamInfo="teamInfo"
+        :members="members"
+        :invalid="teamInvalid || muteInTeam"
+        :invalidHint="sendInvalidHint"
+        :myInfo="myInfo"
+      />
     </div>
   </div>
 </template>
@@ -87,6 +94,29 @@ export default {
         });
       }
       return undefined;
+    },
+    members() {
+      if (this.teamInfo) {
+        var members = this.$store.state.teamMembers[this.teamInfo.teamId];
+        var userInfos = this.$store.state.userInfos;
+        var needSearchAccounts = [];
+        if (members) {
+          members = members.map(item => {
+            var member = Object.assign({}, item); //重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+            if (member.account === this.$store.state.userUID) {
+              member.alias = "我";
+              member.avatar = this.$store.state.myInfo.avatar;
+            } else {
+              member.avatar = userInfos[member.account].avatar;
+              member.alias =
+                member.nickInTeam || userInfos[member.account].nick;
+            }
+            return member;
+          });
+          return members;
+        }
+        return [];
+      }
     },
     msglist() {
       let msgs = this.$store.state.currSessionMsgs;

@@ -1,22 +1,36 @@
 <template>
   <div class="m-chat-editor">
     <div class="u-editor-input">
-      <textarea ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
-      </textarea>
-      <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
-          <li @click='at(item)' v-for='(item, index) in members' v-if='item.alias!=="我"' :key="index">{{item.alias}}</li>
+      <textarea ref="editTextArea" v-model="msgToSent" @focus="onInputFocus"></textarea>
+      <ul v-show="isAt" :style="{left:left+'px'}" class="ait-list">
+        <li
+          @click="at(item)"
+          v-for="(item, index) in members"
+          v-if="item.alias!=='我'"
+          :key="index"
+        >{{item.alias}}</li>
       </ul>
     </div>
     <div class="u-editor-icons">
       <span v-if="!isRobot" class="u-editor-icon" @change="sendFileMsg">
-        <i class="u-icon-img"><img :src="icon2"></i>
+        <i class="u-icon-img">
+          <img :src="icon2">
+        </i>
         <input type="file" ref="fileToSent">
       </span>
-      <span v-if="!isRobot" class="u-editor-icon" id="showNetcallVideoLink" @click.stop="startTeamVoice">
-        <i class="u-icon-img"><img :src="icon3"></i>
+      <span
+        v-if="!isRobot"
+        class="u-editor-icon"
+        id="showNetcallVideoLink"
+        @click.stop="startTeamVoice"
+      >
+        <i class="u-icon-img">
+          <img :src="icon3">
+        </i>
       </span>
       <span class="u-editor-send" @click="sendTextMsg">发 送</span>
     </div>
+
   </div>
 </template>
 
@@ -24,6 +38,7 @@
 import util from "@/utils";
 import config from "@/configs";
 import pageUtil from "@/utils/page";
+
 
 export default {
   props: {
@@ -46,15 +61,15 @@ export default {
   },
   watch: {
     msgToSent(curVal, oldVal) {
-      if (this.isRobot || this.scene !== 'team') {
+      if (this.isRobot || this.scene !== "team") {
         return;
       }
-      if (this.msgToSent[this.msgToSent.length - 1] === '@') {
-         let position = util.getPosition(this.$refs['editTextArea'])
-          this.isAt = true;
-          this.left = position * 14
+      if (this.msgToSent[this.msgToSent.length - 1] === "@") {
+        let position = util.getPosition(this.$refs["editTextArea"]);
+        this.isAt = true;
+        this.left = position * 14;
       } else if (this.isRobotListShown === true) {
-          this.isAt = false;
+        this.isAt = false;
       }
     }
   },
@@ -110,13 +125,13 @@ export default {
   },
   methods: {
     getAtList() {
-       let atList = [];
-       this.members.forEach(item => {
-           if(this.msgToSent.includes('@' + item.alias)) {
-              atList.push(item.id)
-           }
-       });
-       return atList;
+      let atList = [];
+      this.members.forEach(item => {
+        if (this.msgToSent.includes("@" + item.alias)) {
+          atList.push(item.id);
+        }
+      });
+      return atList;
     },
     sendTextMsg() {
       if (this.invalid) {
@@ -133,72 +148,72 @@ export default {
       this.msgToSent = this.msgToSent.trim();
       // let atList = this.getAtList();
       this.$store.dispatch("sendMsg", {
-            type: "text",
-            scene: this.scene,
-            to: this.to,
-            text: this.msgToSent,
-            // custom: JSON.stringify(atList)
-            custom: '[]'
+        type: "text",
+        scene: this.scene,
+        to: this.to,
+        text: this.msgToSent,
+        // custom: JSON.stringify(atList)
+        custom: "[]"
       });
       // 如果是机器人
-    //   if (this.isRobot) {
-    //     this.$store.dispatch("sendRobotMsg", {
-    //       type: "text",
-    //       scene: this.scene,
-    //       to: this.to,
-    //       robotAccid: this.to,
-    //       // 机器人后台消息
-    //       content: this.msgToSent,
-    //       // 显示的文本消息
-    //       body: this.msgToSent
-    //     });
-    //   } else {
-    //     let robotAccid = "";
-    //     let robotText = "";
+      //   if (this.isRobot) {
+      //     this.$store.dispatch("sendRobotMsg", {
+      //       type: "text",
+      //       scene: this.scene,
+      //       to: this.to,
+      //       robotAccid: this.to,
+      //       // 机器人后台消息
+      //       content: this.msgToSent,
+      //       // 显示的文本消息
+      //       body: this.msgToSent
+      //     });
+      //   } else {
+      //     let robotAccid = "";
+      //     let robotText = "";
 
-    //     let atUsers = this.msgToSent.match(/@[^\s@$]+/g);
-    //     if (atUsers) {
-    //       for (let i = 0; i < atUsers.length; i++) {
-    //         let item = atUsers[i].replace("@", "");
-    //         if (this.robotInfosByNick[item]) {
-    //           robotAccid = this.robotInfosByNick[item].account;
-    //           robotText = (this.msgToSent + "").replace(atUsers[i], "").trim();
-    //           break;
-    //         }
-    //       }
-    //     }
-    //     if (robotAccid) {
-    //       if (robotText) {
-    //         this.$store.dispatch("sendRobotMsg", {
-    //           type: "text",
-    //           scene: this.scene,
-    //           to: this.to,
-    //           robotAccid,
-    //           // 机器人后台消息
-    //           content: robotText,
-    //           // 显示的文本消息
-    //           body: this.msgToSent
-    //         });
-    //       } else {
-    //         this.$store.dispatch("sendRobotMsg", {
-    //           type: "welcome",
-    //           scene: this.scene,
-    //           to: this.to,
-    //           robotAccid,
-    //           // 显示的文本消息
-    //           body: this.msgToSent
-    //         });
-    //       }
-    //     } else {
-    //       this.$store.dispatch("sendMsg", {
-    //         type: "text",
-    //         scene: this.scene,
-    //         to: this.to,
-    //         text: this.msgToSent,
-    //         custom: {"name":'a'}
-    //       });
-    //     }
-    //   }
+      //     let atUsers = this.msgToSent.match(/@[^\s@$]+/g);
+      //     if (atUsers) {
+      //       for (let i = 0; i < atUsers.length; i++) {
+      //         let item = atUsers[i].replace("@", "");
+      //         if (this.robotInfosByNick[item]) {
+      //           robotAccid = this.robotInfosByNick[item].account;
+      //           robotText = (this.msgToSent + "").replace(atUsers[i], "").trim();
+      //           break;
+      //         }
+      //       }
+      //     }
+      //     if (robotAccid) {
+      //       if (robotText) {
+      //         this.$store.dispatch("sendRobotMsg", {
+      //           type: "text",
+      //           scene: this.scene,
+      //           to: this.to,
+      //           robotAccid,
+      //           // 机器人后台消息
+      //           content: robotText,
+      //           // 显示的文本消息
+      //           body: this.msgToSent
+      //         });
+      //       } else {
+      //         this.$store.dispatch("sendRobotMsg", {
+      //           type: "welcome",
+      //           scene: this.scene,
+      //           to: this.to,
+      //           robotAccid,
+      //           // 显示的文本消息
+      //           body: this.msgToSent
+      //         });
+      //       }
+      //     } else {
+      //       this.$store.dispatch("sendMsg", {
+      //         type: "text",
+      //         scene: this.scene,
+      //         to: this.to,
+      //         text: this.msgToSent,
+      //         custom: {"name":'a'}
+      //       });
+      //     }
+      //   }
       this.msgToSent = "";
     },
     sendFileMsg() {
@@ -215,11 +230,11 @@ export default {
         });
       }
     },
-    startTeamVoice () {
+    startTeamVoice() {
       // 可能需要一些判断 当前群组 TODO
       // 通知 mask 展示群组列表 展现前需要一个开关关闭其他的弹层 在mask子组件里进行控制
-      this.$store.commit('updateMaskState', true)
-      this.$store.commit('updateSelectMemberDiaState', true)
+      // this.$store.commit('updateMaskState', true)
+      this.$store.commit("updateSelectMemberDiaState", true);
     },
     // netcallVideoLink () { // 点击开始语音
     //   if (this.invalid) {
@@ -323,9 +338,9 @@ export default {
       }, 200);
     },
     at(item) {
-       this.isAt = false;
-       this.msgToSent += item.alias;
-       this.$refs['editTextArea'].focus();
+      this.isAt = false;
+      this.msgToSent += item.alias;
+      this.$refs["editTextArea"].focus();
     }
   }
 };
@@ -336,62 +351,63 @@ export default {
   background: #e5f4ff;
   padding: 5px;
   // width:100%;
-  height:100%;
+  height: 100%;
   box-sizing: border-box;
   .u-editor-input {
-      float:left;
-      width:70%;
-      height:100%;
-      position: relative;
-      textarea{
-          width:100%;
-          // height:100%;
-          border-radius: 5px;
-          resize: none;
+    float: left;
+    width: 70%;
+    height: 100%;
+    position: relative;
+    textarea {
+      width: 100%;
+      // height:100%;
+      border-radius: 5px;
+      resize: none;
+    }
+    .ait-list {
+      position: absolute;
+      top: 0;
+      height: 130px;
+      overflow: auto;
+      width: 150px;
+      border: 1px solid #ccc;
+      background: #fff;
+      li {
+        height: 30px;
+        line-height: 30px;
       }
-      .ait-list {
-          position: absolute;
-          top:0;
-          height:130px;
-          overflow: auto;
-          width:150px;
-          border:1px solid #ccc;
-          background: #fff;
-          li{
-              height:30px;
-              line-height:30px;
-          }
-          li:hover{
-              background:#0091e4;
-              color:#fff;
-          }
+      li:hover {
+        background: #0091e4;
+        color: #fff;
       }
+    }
   }
   .u-editor-icons {
-      float:left;
-      width:30%;
-      height:100%;
-      box-sizing: border-box;
-      padding-left:10px;
-      .u-editor-icon {
-          position: relative;
-          display: inline-block;
-          input{
-             opacity: 0;
-             position: absolute;
-             top:0;
-             left:0;
-             width:100%;
-             height:100%;
-          }
+    float: left;
+    width: 30%;
+    height: 100%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    .u-editor-icon {
+      position: relative;
+      display: inline-block;
+      input {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
       }
-      .u-editor-send {
-          display: inline-block;
-          padding:10px;
-          background:#0091e4;
-          color:#fff;
-          border-radius: 5px;
-      }
+    }
+    .u-editor-send {
+      display: inline-block;
+      padding: 10px;
+      background: #0091e4;
+      color: #fff;
+      border-radius: 5px;
+    }
   }
+
 }
 </style>
