@@ -1,40 +1,49 @@
 <template>
-  <div class='chat-item'>
-    <div class='header'>
-      <div class='session-name'>{{sessionName}}</div>
-      <div class='session-handle'>
-        <button class='follow-up-btn'>跟进</button>
-        <span class='check-member' @click='checkInfo'>{{isCheckMember?'关闭查看':'查看成员'}}</span>
+  <div class="chat-item">
+    <!-- header -->
+    <div class="header">
+      <div class="session-name">{{sessionName}}</div>
+      <div class="session-handle">
+        <button class="follow-up-btn">跟进</button>
+        <span class="check-member" @click="checkInfo">{{isCheckMember?'关闭查看':'查看成员'}}</span>
       </div>
     </div>
-    <div
-      class='chat-box'
-      v-if='sessionId'
-    >
-      <div class='chat-list' id='chat-list'>
-        <chat-list :msglist='msglist' :myInfo='myInfo' :isRobot='isRobot' :userInfos='userInfos'/>
+    <!-- chatbox -->
+    <div class="chat-box" v-if="sessionId">
+      <div class="chat-list" id="chat-list">
+        <chat-list :msglist="msglist" :myInfo="myInfo" :isRobot="isRobot" :userInfos="userInfos"/>
       </div>
-      <div class='chat-edit'>
+      <div class="chat-edit">
         <chat-editor
-        :scene="scene"
-        :to="to"
-        :invalid="teamInvalid || muteInTeam"
-        :invalidHint="sendInvalidHint" />
+          :scene="scene"
+          :to="to"
+          :invalid="teamInvalid || muteInTeam"
+          :invalidHint="sendInvalidHint"
+        />
       </div>
+    </div>
+    <!-- 邀请成员弹窗 -->
+    <div class="inviteTeamVoice" v-if="showSelectMember">
+      <select-members />
     </div>
   </div>
 </template>
 <script>
 import util from "@/utils";
 import ChatList from "./ChatList";
-import ChatEditor from './ChatEditor'
+import ChatEditor from "./ChatEditor";
+import SelectMembers from './SelectMemers'
 
 export default {
   components: {
     ChatList,
-    ChatEditor
+    ChatEditor,
+    SelectMembers
   },
   computed: {
+    showSelectMember () {
+      return this.$store.state.showSelectMember
+    },
     isCheckMember() {
       return this.$store.state.isCheckMember;
     },
@@ -67,8 +76,8 @@ export default {
     scene() {
       return util.parseSession(this.sessionId).scene;
     },
-    to () {
-      return util.parseSession(this.sessionId).to
+    to() {
+      return util.parseSession(this.sessionId).to;
     },
     teamInfo() {
       if (this.scene === "team") {
@@ -83,47 +92,51 @@ export default {
       let msgs = this.$store.state.currSessionMsgs;
       return msgs;
     },
-    isRobot () {
-      let sessionId = this.sessionId
-      let user = null
+    isRobot() {
+      let sessionId = this.sessionId;
+      let user = null;
       if (/^p2p-/.test(sessionId)) {
-        user = sessionId.replace(/^p2p-/, '')
+        user = sessionId.replace(/^p2p-/, "");
         if (this.robotInfos[user]) {
-          return true
+          return true;
         }
       }
-      return false
+      return false;
     },
     teamInvalid() {
-      if (this.scene==='team') {
-        return !(this.teamInfo && this.teamInfo.validToCurrentUser)
+      if (this.scene === "team") {
+        return !(this.teamInfo && this.teamInfo.validToCurrentUser);
       }
-      return false
+      return false;
     },
-    muteInTeam(){
-      if(this.scene!=='team') return false
-      var teamMembers = this.$store.state.teamMembers
-      var Members = teamMembers && teamMembers[this.teamInfo.teamId]
-      var selfInTeam = Members && Members.find(item=>{
-        return item.account === this.$store.state.userUID
-      })
-      return selfInTeam && selfInTeam.mute || false
+    muteInTeam() {
+      if (this.scene !== "team") return false;
+      var teamMembers = this.$store.state.teamMembers;
+      var Members = teamMembers && teamMembers[this.teamInfo.teamId];
+      var selfInTeam =
+        Members &&
+        Members.find(item => {
+          return item.account === this.$store.state.userUID;
+        });
+      return (selfInTeam && selfInTeam.mute) || false;
     },
     sendInvalidHint() {
-      if (this.scene==='team' && this.teamInvalid) {
-        return `您已不在该${this.teamInfo && this.teamInfo.type==='normal'? '讨论组':'群'}，不能发送消息`
+      if (this.scene === "team" && this.teamInvalid) {
+        return `您已不在该${
+          this.teamInfo && this.teamInfo.type === "normal" ? "讨论组" : "群"
+        }，不能发送消息`;
       } else if (this.muteInTeam) {
-        return '您已被禁言'
+        return "您已被禁言";
       }
-      return '无权限发送消息'
+      return "无权限发送消息";
     },
-    myInfo () {
-      return this.$store.state.myInfo
-    },
+    myInfo() {
+      return this.$store.state.myInfo;
+    }
   },
   methods: {
     checkInfo() {
-      this.$store.commit("isCheckMember",!this.isCheckMember);
+      this.$store.commit("isCheckMember", !this.isCheckMember);
     }
   }
 };
@@ -132,7 +145,7 @@ export default {
 .chat-item {
   width: 100%;
   height: 100%;
-  position: relative;
+  // position: relative;
   .header {
     width: 100%;
     height: 40px;
@@ -160,30 +173,41 @@ export default {
     }
   }
   .chat-box {
-    position: absolute;
-    top:40px;
-    left:0;
-    right:0;
-    bottom:0;
-    .chat-edit{
+    // position: absolute;
+    // top: 40px;
+    // left: 0;
+    // right: 0;
+    // bottom: 0;
+    height: 88%;
+    overflow-y: auto;
+    .chat-edit {
       position: absolute;
-      width:100%;
-      height:50px;
-      bottom:0;
+      width: 100%;
+      height: 50px;
+      bottom: 0;
+      left: 25%; // 群组列表的宽度
+      width: 55%; // 当前列表的宽度
       box-sizing: border-box;
-      border-top:1px solid #ccc;
+      border-top: 1px solid #ccc;
     }
-    .chat-list{
-      position: absolute;
-      top:0;
-      bottom:100px;
-      left:0;
-      right:0;
-      overflow-x:hidden;
-      overflow-y: auto
+    .chat-list {
+      // position: absolute;
+      // top: 0;
+      // bottom: 100px;
+      // left: 25%; // 群组列表的宽度
+      // right: 0;
+      // width: 55%; // 当前列表的宽度
+      // overflow-x: hidden;
+      // overflow-y: auto;
     }
+  }
+  .inviteTeamVoice {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .4);
   }
 }
 </style>
-
-

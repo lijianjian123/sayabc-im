@@ -23,7 +23,7 @@
     <!-- 需要将各个部分拆分成组件 全屏需要更新 showMask 字段 -->
     <div class="sayabc-mask" v-if="showMask">
       <!-- TODO这部分将会放在 SelectMemers.vue -->
-      <select-members v-if="showSelectMember"/>
+      <!-- <select-members v-if="showSelectMember"/> -->
     </div>
     <!-- 一些全局蒙层模块 end -->
   </div>
@@ -33,7 +33,7 @@
 import SessionList from "./sessionList/Index.vue";
 import Chat from "./chat/Index.vue";
 import TeamInfo from "./teamInfo/Index.vue";
-import SelectMembers from './chat/SelectMemers'
+// import SelectMembers from './chat/SelectMemers'
 
 import cookie from "@/utils/cookie";
 import md5 from "@/utils/md5";
@@ -49,7 +49,7 @@ export default {
     SessionList,
     Chat,
     TeamInfo,
-    SelectMembers
+    // SelectMembers
   },
   computed: {
     sessionId() {
@@ -61,9 +61,9 @@ export default {
     showMask() {
       return this.$store.state.showMask;
     },
-    showSelectMember () {
-      return this.$store.state.showSelectMember
-    }
+    // showSelectMember () {
+    //   return this.$store.state.showSelectMember
+    // }
   },
   methods: {
     handleLogin () {

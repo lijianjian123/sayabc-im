@@ -87,14 +87,15 @@ export default {
 </script>
 <style lang='less' scoped>
 .session {
-  position:relative;
+  // position:relative;
   height:100%;
   .session-list {
-    position: absolute;
-    top:40px;
-    bottom:0;
-    left:0;
-    right:0;
+    // width: 25%;
+    // position: absolute;
+    // top:40px;
+    // bottom:0;
+    // left:0;
+    // right:0;
     overflow: auto;
     .session-item {
       height: 40px;
