@@ -115,7 +115,11 @@ export default {
   sbLeaveInfo: [], // 通话期间推出频道的人员信息
 
   // 临时登录账号
-  temAccountName: ''
+  temAccountName: '',
+
+  //全局mask
+  showMask: false,
+  showSelectMember: false, // 选择语音通话成员
 
 
 }

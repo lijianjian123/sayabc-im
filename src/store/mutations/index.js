@@ -618,5 +618,13 @@ export default {
     // 重置临时登录账号
     console.log('开始重置临时登录账号')
     state.temAccountName = temAccountName
+  },
+
+  // 全局mask
+  updateMaskState(state, boolean) {
+    state.showMask = boolean
+  },
+  updateSelectMemberDiaState(state, boolean) {
+    state.showSelectMember = boolean
   }
 }
