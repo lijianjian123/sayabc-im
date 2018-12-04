@@ -22,14 +22,44 @@ function updateSessionAccount (sessions) {
   }
 }
 
+//跟新本地扩展
+function updateLocalSession (session) {
+  
+  let {myInfo ,nim} = store.state;
+  if(session.localCustom.length && session.lastMsg.custom && JSON.parse(session.lastMsg.custom).includes(myInfo.account)) {
+    nim.updateLocalSession({
+      id:session.id,
+      localCustom:`["${myInfo.account}"]`,
+      done: function() {
+         console.log('更新本地扩展成功')
+      }
+    })
+  }
+}
+
 //onSessions只在初始化完成后回调
 export function onSessions (sessions) {
-  console.log(sessions,'sessions is :')
+  
+
+
   updateSessionAccount(sessions)
   store.commit('updateSessions', sessions)
 }
 
 export function onUpdateSession (session) {
+  // console.log(session.id,'session id to')
+  // console.log(session.lastMsg.custom,'session.lastMsg.custom')
+  // let {myInfo ,nim} = store.state;
+  // if(session.lastMsg.custom && JSON.parse(session.lastMsg.custom).length) {
+  //   nim.updateLocalSession({
+  //     id:session.id,
+  //     localCustom:`["${myInfo.account}"]`,
+  //     done: function() {
+  //        console.log('更新本地扩展成功')
+  //     }
+  //   })
+  // }
+
   let sessions = [session]
   updateSessionAccount(sessions)
   store.commit('updateSessions', sessions)

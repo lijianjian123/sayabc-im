@@ -111,7 +111,6 @@ export default {
     }
   },
   updateSessions(state, sessions) {
-    console.log(JSON.stringify(sessions), 'sessions is :')
     const nim = state.nim
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
     state.sessionlist.sort((a, b) => {
@@ -120,6 +119,7 @@ export default {
     state.sessionlist.forEach(item => {
       state.sessionMap[item.id] = item
     })
+    console.log(state.sessionlist, 'state.sessionlist is :')
   },
   deleteSessions(state, sessionIds) {
     const nim = state.nim

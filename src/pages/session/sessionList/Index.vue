@@ -11,7 +11,7 @@
           <span>{{session.name}}</span>
           <span>{{session.updateTimeShow}}</span>
         </p>
-        <p>{{session.lastMsgShow}}</p>
+        <p>{{session.localCustom && JSON.parse(session.localCustom).includes(myInfo.account) ? '有人@我' : session.lastMsgShow}}</p>
       </li>
     </ul>
   </div>
@@ -22,6 +22,9 @@ import util from "@/utils";
 export default {
   components: { Search },
   computed: {
+    myInfo() {
+      return this.$store.state.myInfo
+    },
     myPhoneId() {
       return `${this.$store.state.userUID}`;
     },
@@ -30,7 +33,11 @@ export default {
     },
     sessionlist() {
       let sessionlist = this.$store.state.sessionlist.filter(item => {
-        item.name = "";
+        if(item.localCustom) {
+console.log(item.localCustom,JSON.parse(item.localCustom),this.myInfo.account,typeof this.myInfo.account,'localCustom is :===')
+       
+        }
+         item.name = "";
         if (item.scene === "p2p") {
           let userInfo = null;
           if (item.to !== this.myPhoneId) {
@@ -72,7 +79,7 @@ export default {
         }
         return item;
       });
-      console.log(sessionlist, "sessionlist is :");
+      console.log(sessionlist,'sessionlist ++++++++++++++++++')
       return sessionlist;
     }
   },

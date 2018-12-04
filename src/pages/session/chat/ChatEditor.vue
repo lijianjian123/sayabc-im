@@ -5,7 +5,10 @@
           
       </textarea>
       <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
-          <li @click='at(item)' v-for='item in members' v-if='item.alias!=="我"'>{{item.alias}}</li>
+          <li @click='at(item)' v-for='item in members' v-if='item.alias!=="我"'>
+              <span class='avatar'><img :src="item.avatar" alt=""></span>
+              <span class='alias'>{{item.alias}}</span>
+          </li>
       </ul>
     </div>
     <div class="u-editor-icons">
@@ -51,7 +54,7 @@ export default {
          let position = util.getPosition(this.$refs['editTextArea'])
           this.isAt = true;
           this.left = position * 14
-      } else if (this.isRobotListShown === true) {
+      } else {
           this.isAt = false;
       }
     }
@@ -73,7 +76,6 @@ export default {
       return this.$store.state.currSessionId;
     },  
     teamInfo() {
-        console.log('1234567890')
       if (this.scene === "team") {
         var teamId = this.sessionId.replace("team-", "");
         let teamInfo = this.$store.state.teamlist.find(team => {
@@ -83,7 +85,7 @@ export default {
       }
       return undefined;
     },
-    members() {
+     members() {
       if (this.teamInfo) {
         var members = this.$store.state.teamMembers[this.teamInfo.teamId];
         var userInfos = this.$store.state.userInfos;
@@ -91,9 +93,16 @@ export default {
         if (members) {
           members = members.map(item => {
             var member = Object.assign({}, item); //重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+            member.valid = true; //被管理员移除后，标记为false
             if (member.account === this.$store.state.userUID) {
               member.alias = "我";
               member.avatar = this.$store.state.myInfo.avatar;
+              this.isOwner = member.type === "owner";
+              this.hasManagePermission = member.type !== "normal";
+            } else if (userInfos[member.account] === undefined) {
+              needSearchAccounts.push(member.account);
+              member.avatar = member.avatar || this.avatar;
+              member.alias = member.nickInTeam || member.account;
             } else {
               member.avatar = userInfos[member.account].avatar;
               member.alias =
@@ -101,6 +110,14 @@ export default {
             }
             return member;
           });
+          //如果群中的成员没有在现有的用户列表中，需要重新拉取用户信息
+          if (needSearchAccounts.length > 0 && !this.hasSearched) {
+            this.hasSearched = true;
+            while (needSearchAccounts.length > 0) {
+              this.searchUsers(needSearchAccounts.splice(0, 150));
+            }
+          }
+          console.log(members,'members +++++++++')
           return members;
         }
         return [];
@@ -112,7 +129,7 @@ export default {
        let atList = []; 
        this.members.forEach(item => {
            if(this.msgToSent.includes('@' + item.alias)) {
-              atList.push(item.id)
+              atList.push(item.account)
            }
        }); 
        return atList;
@@ -130,14 +147,18 @@ export default {
         return;
       }
       this.msgToSent = this.msgToSent.trim();
-      let atList = this.getAtList();
-      this.$store.dispatch("sendMsg", {
-            type: "text",
-            scene: this.scene,
-            to: this.to,
-            text: this.msgToSent,
-            custom: JSON.stringify(atList)
-      });
+      console.log(this.to,'session id to')
+      let sendData = {
+           type: "text",
+           scene: this.scene,
+           to: this.to,
+           text: this.msgToSent
+      }
+      if(this.scene === 'team') {
+        let atList = this.getAtList();
+        sendData.custom = JSON.stringify(atList)
+      }    
+      this.$store.dispatch("sendMsg", sendData);
       // 如果是机器人
     //   if (this.isRobot) {
     //     this.$store.dispatch("sendRobotMsg", {
@@ -247,7 +268,26 @@ export default {
        this.isAt = false; 
        this.msgToSent += item.alias;
        this.$refs['editTextArea'].focus();
-    }
+    },
+    searchUsers(Accounts) {
+      this.$store.dispatch("searchUsers", {
+        accounts: Accounts,
+        done: users => {
+          this.updateTeamMember(users);
+        }
+      });
+    },
+    updateTeamMember(users) {
+      users.forEach(user => {
+        var member = this.members.find(member => {
+          return member.account === user.account;
+        });
+        if (member) {
+          member.avatar = user.avatar;
+          member.alias = member.nickInTeam || user.nick;
+        }
+      });
+    },
   }
 };
 </script>
@@ -273,7 +313,7 @@ export default {
       .ait-list {
           position: absolute;
           top:0;
-          height:130px;
+          max-height:150px;
           overflow: auto;
           width:150px;
           border:1px solid #ccc;
@@ -281,6 +321,15 @@ export default {
           li{
               height:30px;
               line-height:30px;
+              padding-left:10px;
+              .avatar img{
+                  width:20px;
+                  height:20px;
+                  border-radius: 50%;
+              }
+              .alias {
+                  vertical-align: bottom;
+              }
           }
           li:hover{
               background:#0091e4;
