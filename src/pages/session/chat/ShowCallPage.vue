@@ -50,7 +50,7 @@ export default {
 <style scoped>
 .call {
   top: 0;
-  width: 500px;
+  /* width: 500px; */
   height: 300px;
   background-color: gray;
   border: 2px solid yellow;

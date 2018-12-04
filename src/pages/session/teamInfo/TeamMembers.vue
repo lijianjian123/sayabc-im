@@ -102,9 +102,6 @@ export default {
         return [];
       }
     }
-  },
-  mounted() {
-    console.log("lalalalal");
   }
 };
 </script>

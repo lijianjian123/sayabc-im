@@ -86,7 +86,7 @@ export default {
     handleCreateChannel() {
       // 创建房间
       return netcall.createChannel({
-        channelName: new Date().getTime().toString(), //必填 TODO 退出时候记得销毁 实际使用的时候 这个按照群组id进行创建房间
+        channelName: new Date().getTime().toString(), //必填 TODO 退出时候记得销毁 实际使用的时候 这个按照群组id进行创建房间 sessionId+account
         custom: "小组内秘密通话~~~", //可选
         webrtcEnable: true // 是否支持WebRTC方式接入，可选，默认为不开启
       });
@@ -155,7 +155,7 @@ export default {
           // 加一层call控制器
             console.log('开始call',this.confirmSelectMembers,  this.confirmSelectMembers.length)
           this.confirmSelectMembers.length < 2
-            ? this.handleCallOnePeople(this.hasSelectMembers[0].account)
+            ? this.handleCallOnePeople(this.confirmSelectMembers[0].account)
             : this.handleCallMulPeople()
         })
       });

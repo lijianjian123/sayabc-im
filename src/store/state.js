@@ -65,8 +65,8 @@ export default {
   // 会话列表
   sessionlist: [],
   sessionMap: {},
-  // 当前会话ID (即当前聊天列表，TODO计划实现通用)
-  sessionId: null,
+  // 当前会话ID (即当前聊天列表，TODO计划实现通用) cancel
+  // sessionId: null,
   // 当前会话ID（即当前聊天列表，只有单聊群聊采用，可用于判别）
   currSessionId: null,
   currSessionMsgs: [],

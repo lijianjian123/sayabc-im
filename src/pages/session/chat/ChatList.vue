@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 两个container需要判断是否在当前的会话窗口中 -->
     <div id="container">
       <show-call-page
         v-if="chatVoiceShowCall && !isHandUp"
@@ -52,12 +53,19 @@ export default {
         return {};
       }
     },
+    teamInfo: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
     userInfos: {
       type: Object,
       default() {
         return {};
       }
-    }
+    },
+    sessionId: String
   },
   computed: {
     chatVoiceShowCall () {
@@ -68,16 +76,27 @@ export default {
     },
     isHandUp () {
       return this.$store.state.isHandUp
+    },
+    sessionlist () {
+      return this.$store.state.sessionlist
     }
   },
   mounted() {
     setTimeout(() => {
       console.log(this.msglist, "msglist is :======");
     });
+    // console.log('teamInfo',this.teamInfo)
+    // TODO 获取当前会话和发起通话teamID是否一致，不一致则不显示call和becall页面
   }
 };
 </script>
 <style lang='less' scoped>
+#container, #remoteContainer {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  width: 55%;
+}
 </style>
 
 

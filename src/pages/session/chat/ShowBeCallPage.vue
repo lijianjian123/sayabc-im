@@ -88,8 +88,8 @@ export default {
 }
 .becall {
   top: 0;
-  width: 300px;
-  height: 500px;
+  /* width: 300px; */
+  height: 300px;
   background-color: yellow;
   border: 2px solid blue;
   text-align: center;

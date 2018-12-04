@@ -11,7 +11,13 @@
     <!-- chatbox -->
     <div class="chat-box" v-if="sessionId">
       <div class="chat-list" id="chat-list">
-        <chat-list :msglist="msglist" :myInfo="myInfo" :isRobot="isRobot" :userInfos="userInfos"/>
+        <chat-list
+          :msglist="msglist"
+          :myInfo="myInfo"
+          :isRobot="isRobot"
+          :userInfos="userInfos"
+          :sessionId="sessionId"
+        />
       </div>
       <div class="chat-edit">
         <!-- 父组件有很多可以props传递给子组件不要一遍一遍的写 TODO 比如scene teamInfo等!!! -->
@@ -26,7 +32,6 @@
     <!-- 邀请成员弹窗 -->
     <div class="inviteTeamVoice" v-if="scene==='team' && showSelectMember">
       <select-members
-        :teamInfo="teamInfo"
         :members="members"
         :invalid="teamInvalid || muteInTeam"
         :invalidHint="sendInvalidHint"
