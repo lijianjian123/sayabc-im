@@ -7,11 +7,9 @@
     </div>
     <!-- 登录伪造页面 end-->
     <div class="session-list">
-      <!-- <search />-->
-      <session-list />
+      <session-list /> 
     </div>
     <div class='chat'>
-      <!-- <chat-header/> -->
       <!-- 要显示聊天界面要有sessionId  通过store传递 -->
       <chat />
     </div>

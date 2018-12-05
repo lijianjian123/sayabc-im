@@ -1,14 +1,17 @@
 <template>
   <div class="m-chat-editor">
     <div class="u-editor-input">
-      <textarea ref="editTextArea" v-model="msgToSent" @focus="onInputFocus"></textarea>
-      <ul v-show="isAt" :style="{left:left+'px'}" class="ait-list">
-        <li
-          @click="at(item)"
-          v-for="(item, index) in members"
-          v-if="item.alias!=='我'"
-          :key="index"
-        >{{item.alias}}</li>
+      <!-- <textarea @input='editMsg' ref='editTextArea'  v-model="msgToSent" @focus='onInputFocus'>
+          
+      </textarea> -->
+      <div ref='editTextArea' class='msg-textarea' contenteditable="true" @click='onInputFocus' @input="editMsg">
+         <!-- {{msgToSent}} -->
+      </div>
+      <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
+          <li @click='at(item)' v-for='(item,index) in members' :class='{active:index === activeIndex}'>
+              <span class='avatar'><img :src="item.avatar" alt=""></span>
+              <span class='alias'>{{item.alias}}</span>
+          </li>
       </ul>
     </div>
     <div class="u-editor-icons">
@@ -61,15 +64,37 @@ export default {
   },
   watch: {
     msgToSent(curVal, oldVal) {
-      if (this.isRobot || this.scene !== "team") {
+        //console.log(msgToSent,'msgToSent22222')
+      if (this.isRobot || this.scene !== 'team') {
         return;
       }
-      if (this.msgToSent[this.msgToSent.length - 1] === "@") {
-        let position = util.getPosition(this.$refs["editTextArea"]);
-        this.isAt = true;
-        this.left = position * 14;
-      } else if (this.isRobotListShown === true) {
-        this.isAt = false;
+      console.log(this.msgToSent,'this.msgToSent1111')
+      if (this.msgToSent[this.msgToSent.length - 1] === '@') {
+          //this.isAt = true;
+          let editTextArea = this.$refs['editTextArea'];
+          let childNodes = editTextArea.childNodes;
+          let lastChildNode = childNodes[childNodes.length-1];
+          let child = document.createElement('SPAN');
+          child.id = `at-${this.msgToSent.length-1}`
+        //   child.innerHTML='span'
+          console.log(this.$refs['editTextArea'].childNodes[this.$refs['editTextArea'].childNodes.length-1].nodeType === 1,'innerHTML')
+          if(lastChildNode.nodeType === 1){
+             lastChildNode.appendChild(child)
+          }else if(lastChildNode.nodeType === 3) {
+             editTextArea.appendChild(child)
+          }
+          console.log(editTextArea.childNodes,'childNodes is :=======')
+        //let msgToSent = this.msgToSent.substring(0,this.msgToSent.length-1)+`<span id="at-${this.msgToSent.length-1}">@</span>`
+        //   let child = document.createElement('SPAN');
+        //   child.id = `at-${this.msgToSent.length-1}`
+        //   this.$refs['editTextArea'].appendChild(child);
+          let oSpan = document.getElementById(`at-${this.msgToSent.length-1}`);
+          this.left = oSpan.offsetLeft+20;
+          this.isAt = true;
+        //   this.bottom = oSpan.offsetTop+10;
+        //   console.log(oSpan.offsetLeft,'top is :======')
+      } else {
+          this.isAt = false;
       }
     }
   },
@@ -82,7 +107,9 @@ export default {
       icon2: `${config.resourceUrl}/im/chat-editor-2.png`,
       icon3: `${config.resourceUrl}/im/chat-editor-3.png`,
       left: 0,
-      isAt: false
+      bottom: 0,
+      isAt: false,
+      activeIndex: 0
     };
   },
   computed: {
@@ -105,19 +132,31 @@ export default {
         var userInfos = this.$store.state.userInfos;
         var needSearchAccounts = [];
         if (members) {
-          members = members.map(item => {
+          let newMembers = [];  
+          members.forEach(item => {
             var member = Object.assign({}, item); //重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
-            if (member.account === this.$store.state.userUID) {
-              member.alias = "我";
-              member.avatar = this.$store.state.myInfo.avatar;
-            } else {
-              member.avatar = userInfos[member.account].avatar;
-              member.alias =
-                member.nickInTeam || userInfos[member.account].nick;
+            member.valid = true; //被管理员移除后，标记为false
+            if (member.account !== this.$store.state.userUID) {
+                if (userInfos[member.account] === undefined) {
+                    needSearchAccounts.push(member.account);
+                    member.avatar = member.avatar || this.avatar;
+                    member.alias = member.nickInTeam || member.account;
+                } else {
+                    member.avatar = userInfos[member.account].avatar;
+                    member.alias =
+                        member.nickInTeam || userInfos[member.account].nick;
+                }
+                newMembers.push(member);
             }
-            return member;
           });
-          return members;
+          //如果群中的成员没有在现有的用户列表中，需要重新拉取用户信息
+          if (needSearchAccounts.length > 0 && !this.hasSearched) {
+            this.hasSearched = true;
+            while (needSearchAccounts.length > 0) {
+              this.searchUsers(needSearchAccounts.splice(0, 150));
+            }
+          }
+          return newMembers;
         }
         return [];
       }
@@ -125,14 +164,14 @@ export default {
   },
   methods: {
     getAtList() {
-      let atList = [];
-      this.members.forEach(item => {
-        if (this.msgToSent.includes("@" + item.alias)) {
-          atList.push(item.id);
-        }
-      });
-      return atList;
-    },
+       let atList = []; 
+       this.members.forEach(item => {
+           if(this.msgToSent.includes('@' + item.alias)) {
+              atList.push(item.account)
+           }
+       }); 
+       return atList;
+    },  
     sendTextMsg() {
       if (this.invalid) {
         this.$toast(this.invalidHint);
@@ -146,15 +185,18 @@ export default {
         return;
       }
       this.msgToSent = this.msgToSent.trim();
-      // let atList = this.getAtList();
-      this.$store.dispatch("sendMsg", {
-        type: "text",
-        scene: this.scene,
-        to: this.to,
-        text: this.msgToSent,
-        // custom: JSON.stringify(atList)
-        custom: "[]"
-      });
+      console.log(this.to,'session id to')
+      let sendData = {
+           type: "text",
+           scene: this.scene,
+           to: this.to,
+           text: this.msgToSent
+      }
+      if(this.scene === 'team') {
+        let atList = this.getAtList();
+        sendData.custom = JSON.stringify(atList)
+      }    
+      this.$store.dispatch("sendMsg", sendData);
       // 如果是机器人
       //   if (this.isRobot) {
       //     this.$store.dispatch("sendRobotMsg", {
@@ -333,15 +375,52 @@ export default {
     onInputFocus(e) {
       setTimeout(() => {
         // todo fixme 解决iOS输入框被遮挡问题，但会存在空白缝隙
-        e.target.scrollIntoView();
+        // e.target.scrollIntoView();
         pageUtil.scrollChatListDown();
       }, 200);
     },
     at(item) {
-      this.isAt = false;
-      this.msgToSent += item.alias;
-      this.$refs["editTextArea"].focus();
+       this.isAt = false; 
+       this.msgToSent += item.alias;
+       this.$refs['editTextArea'].focus();
+    },
+    searchUsers(Accounts) {
+      this.$store.dispatch("searchUsers", {
+        accounts: Accounts,
+        done: users => {
+          this.updateTeamMember(users);
+        }
+      });
+    },
+    updateTeamMember(users) {
+      users.forEach(user => {
+        var member = this.members.find(member => {
+          return member.account === user.account;
+        });
+        if (member) {
+          member.avatar = user.avatar;
+          member.alias = member.nickInTeam || user.nick;
+        }
+      });
+    },
+    editMsg(e) {
+      console.log(e.target.value,'e is :=====')
+      this.msgToSent = e.target.textContent
     }
+  },
+  mounted() {
+      window.addEventListener('keydown', (e) => {
+         if(!this.isAt) 
+            return false;
+         if(e.keyCode === 38) {
+           this.activeIndex = this.activeIndex >=1 ? this.activeIndex - 1 : this.members.length-1;
+         }
+         if(e.keyCode === 40) {  
+            
+          this.activeIndex = this.activeIndex < this.members.length-1 ? this.activeIndex + 1 : 0;
+          console.log(this.activeIndex,'this.activeIndex')
+         }
+      })
   }
 };
 </script>
@@ -358,11 +437,16 @@ export default {
     width: 70%;
     height: 100%;
     position: relative;
-    textarea {
-      width: 100%;
-      // height:100%;
-      border-radius: 5px;
-      resize: none;
+    .msg-textarea{
+          position: relative;
+          width:100%;
+          height:100%;
+          overflow: auto;
+          border-radius: 5px;
+          background:#fff;
+          outline: none;
+          padding:5px;
+          box-sizing: border-box;
     }
     .ait-list {
       position: absolute;
@@ -377,7 +461,7 @@ export default {
         line-height: 30px;
       }
       li:hover {
-        background: #0091e4;
+        background: #5cacde;
         color: #fff;
       }
     }

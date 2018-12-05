@@ -111,7 +111,6 @@ export default {
     }
   },
   updateSessions(state, sessions) {
-    console.log(JSON.stringify(sessions), 'sessions is :')
     const nim = state.nim
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
     state.sessionlist.sort((a, b) => {
@@ -277,6 +276,7 @@ export default {
           }
           state.currSessionMsgs.push(msg)
         })
+
         store.dispatch('checkTeamMsgReceipt', state.currSessionMsgs)
       }
     } else if (type === 'put') { // 追加一条消息

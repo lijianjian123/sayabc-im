@@ -213,7 +213,6 @@ export default {
         item.avatar = this.myInfo.avatar;
       }
     } else if (item.flow === "out") {
-      console.log(this.myInfo, "myInfo is ");
       item.avatar = this.myInfo.avatar;
     }
     if (item.type === "timeTag") {
