@@ -7,7 +7,7 @@
       <div ref='editTextArea' class='msg-textarea' contenteditable="true" @click='onInputFocus' @input="editMsg">
          <!-- {{msgToSent}} -->
       </div>
-      <ul  v-show='isAt' :style="{left:left+'px',bottom:bottom+'px'}" class='ait-list'>
+      <ul  v-show='isAt' :style="{left:left+'px'}" class='ait-list'>
           <li @click='at(item)' v-for='(item,index) in members' :class='{active:index === activeIndex}'>
               <span class='avatar'><img :src="item.avatar" alt=""></span>
               <span class='alias'>{{item.alias}}</span>
@@ -56,15 +56,29 @@ export default {
       }
       console.log(this.msgToSent,'this.msgToSent1111')
       if (this.msgToSent[this.msgToSent.length - 1] === '@') {
-          this.isAt = true;
-          //let msgToSent = this.msgToSent.substring(0,this.msgToSent.length-1)+`<span id="at-${this.msgToSent.length-1}">@</span>`
+          //this.isAt = true;
+          let editTextArea = this.$refs['editTextArea'];
+          let childNodes = editTextArea.childNodes;
+          let lastChildNode = childNodes[childNodes.length-1];
           let child = document.createElement('SPAN');
           child.id = `at-${this.msgToSent.length-1}`
-          this.$refs['editTextArea'].appendChild(child);
+        //   child.innerHTML='span'
+          console.log(this.$refs['editTextArea'].childNodes[this.$refs['editTextArea'].childNodes.length-1].nodeType === 1,'innerHTML')
+          if(lastChildNode.nodeType === 1){
+             lastChildNode.appendChild(child)
+          }else if(lastChildNode.nodeType === 3) {
+             editTextArea.appendChild(child)
+          }
+          console.log(editTextArea.childNodes,'childNodes is :=======')
+        //let msgToSent = this.msgToSent.substring(0,this.msgToSent.length-1)+`<span id="at-${this.msgToSent.length-1}">@</span>`
+        //   let child = document.createElement('SPAN');
+        //   child.id = `at-${this.msgToSent.length-1}`
+        //   this.$refs['editTextArea'].appendChild(child);
           let oSpan = document.getElementById(`at-${this.msgToSent.length-1}`);
           this.left = oSpan.offsetLeft+20;
-          this.bottom = oSpan.offsetTop+10;
-          console.log(oSpan.offsetTop,'top is :======')
+          this.isAt = true;
+        //   this.bottom = oSpan.offsetTop+10;
+        //   console.log(oSpan.offsetLeft,'top is :======')
       } else {
           this.isAt = false;
       }
